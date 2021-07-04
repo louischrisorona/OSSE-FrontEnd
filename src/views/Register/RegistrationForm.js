@@ -31,6 +31,15 @@ export default function RegistrationForm() {
       password,
       confirmPassword,
     } = registrationForm;
+    if (
+      registrationForm.email === registrationForm.confirmEmail &&
+      registrationForm.password === registrationForm.confirmPassword
+    ) {
+      alert(`You're Email and Password Matches!`);
+    } else {
+      alert(`Email and Password Do Not Match!`);
+    }
+
     console.log(
       firstName,
       lastName,
