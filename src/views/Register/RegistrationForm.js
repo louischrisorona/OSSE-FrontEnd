@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-// import validator from 'email-validator';
+// import { connect } from 'react-redux';
 
 export default function RegistrationForm() {
   const initialForm = {

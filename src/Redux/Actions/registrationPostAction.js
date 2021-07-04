@@ -10,7 +10,7 @@ export const registrationPost = (id) => {
 export const postUser = async () => {
   return (dispatch) => {
     try {
-      let data = await axios.post(
+      let dataPost = await axios.post(
         'https://osse-back-end-eg6hsrqnn-jonathanmartin-gif.vercel.app/registration'.then(
           ({ data }) => {
             dispatch({ type: 'REGISTRATION_POSTED', payload: data });
