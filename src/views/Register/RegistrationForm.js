@@ -49,7 +49,7 @@ export default function RegistrationForm() {
           });
         } catch (error) {
           if (error.name === 'AbortError') {
-            console.log('Post was no successful');
+            console.log('Post was not successful');
           } else {
             throw error;
           }
