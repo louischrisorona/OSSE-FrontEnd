@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import uuid from 'react-uuid';
 
 export default function RegistrationForm() {
   const initialForm = {
-    id: uuid(),
     first_name: '',
     last_name: '',
     username: '',
@@ -34,7 +32,6 @@ export default function RegistrationForm() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              id: uuid(),
               first_name: '',
               last_name: '',
               username: '',
@@ -66,7 +63,6 @@ export default function RegistrationForm() {
   const submitHandler = (event) => {
     event.preventDefault();
     const {
-      id,
       first_name,
       last_name,
       username,
@@ -76,7 +72,6 @@ export default function RegistrationForm() {
       password_match,
     } = registrationForm;
     console.log(
-      id,
       first_name,
       last_name,
       username,
