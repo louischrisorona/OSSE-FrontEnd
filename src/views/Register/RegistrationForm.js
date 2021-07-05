@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-// import { connect } from 'react-redux';
+import uuid from 'react-uuid';
 
 export default function RegistrationForm() {
   const initialForm = {
-    firstName: '',
-    lastName: '',
+    id: uuid(),
+    first_name: '',
+    last_name: '',
     username: '',
     email: '',
-    confirmEmail: '',
+    email_match: '',
     password: '',
-    confirmPassword: '',
+    password_match: '',
   };
   const history = useHistory();
 
@@ -23,31 +24,66 @@ export default function RegistrationForm() {
   const submitHandler = (event) => {
     event.preventDefault();
     const {
-      firstName,
-      lastName,
+      id,
+      first_name,
+      last_name,
       username,
       email,
-      confirmEmail,
+      email_match,
       password,
-      confirmPassword,
+      password_match,
     } = registrationForm;
     if (
-      registrationForm.email === registrationForm.confirmEmail &&
-      registrationForm.password === registrationForm.confirmPassword
+      registrationForm.email === registrationForm.email_match &&
+      registrationForm.password === registrationForm.password_match
     ) {
       alert(`You're Email and Password Matches!`);
+      useEffect(() => {
+        const currentAPI = `https://osse-back-end.vercel.app/registration`;
+        const abortController = new AbortController();
+        async function postRegistration() {
+          try {
+            const requestOptions = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id,
+                first_name: '',
+                last_name: '',
+                username: '',
+                email: '',
+                password: '',
+                password_match: '',
+              }),
+            };
+            const response = await fetch(currentAPI, requestOptions, {
+              signal: abortController.signal,
+            });
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              console.log('Post was no successful');
+            } else {
+              throw error;
+            }
+          }
+        }
+        postRegistration();
+        return () => {
+          abortController.abort();
+        };
+      }, []);
     } else {
       alert(`Email and Password Do Not Match!`);
     }
-
     console.log(
-      firstName,
-      lastName,
+      id,
+      first_name,
+      last_name,
       username,
       email,
-      confirmEmail,
+      email_match,
       password,
-      confirmPassword
+      password_match
     );
     setRegistrationForm({ ...initialForm });
     history.push('/Login');
@@ -67,28 +103,28 @@ export default function RegistrationForm() {
           className='card-body'
           style={{ color: '#fff' }}
         >
-          <label htmlFor='firstName' className='d-block'>
+          <label htmlFor='first_name' className='d-block'>
             First Name:
           </label>
           <input
-            name='firstName'
+            name='first_name'
             type='text'
-            id='firstName'
+            id='first_name'
             required
             onChange={handleChange}
-            value={registrationForm.firstName}
+            value={registrationForm.first_name}
             style={{ width: '100%', marginBottom: '5px' }}
           />
-          <label htmlFor='lastName' className='d-block'>
+          <label htmlFor='last_name' className='d-block'>
             Last Name:
           </label>
           <input
-            name='lastName'
+            name='last_name'
             type='text'
-            id='lastName'
+            id='last_name'
             required
             onChange={handleChange}
-            value={registrationForm.lastName}
+            value={registrationForm.last_name}
             style={{ width: '100%', marginBottom: '5px' }}
           />
           <label htmlFor='username' className='d-block'>
@@ -115,16 +151,16 @@ export default function RegistrationForm() {
             value={registrationForm.email}
             style={{ width: '100%', marginBottom: '5px' }}
           />
-          <label htmlFor='confirmEmail' className='d-block'>
+          <label htmlFor='email_match' className='d-block'>
             Confirm Email:
           </label>
           <input
-            name='confirmEmail'
+            name='email_match'
             type='email'
-            id='confirmEmail'
+            id='email_match'
             required
             onChange={handleChange}
-            value={registrationForm.confirmEmail}
+            value={registrationForm.email_match}
             style={{ width: '100%' }}
           />
           <label htmlFor='password' className='d-block'>
@@ -139,16 +175,16 @@ export default function RegistrationForm() {
             value={registrationForm.password}
             style={{ width: '100%', marginBottom: '5px' }}
           />
-          <label htmlFor='confirmPassword' className='d-block'>
+          <label htmlFor='password_match' className='d-block'>
             Confirm password:
           </label>
           <input
-            name='confirmPassword'
+            name='password_match'
             type='password'
-            id='confirmPassword'
+            id='password_match'
             required
             onChange={handleChange}
-            value={registrationForm.confirmPassword}
+            value={registrationForm.password_match}
             style={{ width: '100%' }}
           />
           <button type='submit' className='btn btn-primary mt-3'>
