@@ -56,6 +56,7 @@ export default function RegistrationForm() {
                 password_match: '',
               }),
             };
+            //eslint-disable-next-line
             const response = await fetch(currentAPI, requestOptions, {
               signal: abortController.signal,
             });
