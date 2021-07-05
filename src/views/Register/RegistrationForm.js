@@ -20,7 +20,49 @@ export default function RegistrationForm() {
   const handleChange = ({ target }) => {
     setRegistrationForm({ ...registrationForm, [target.name]: target.value });
   };
-
+  useEffect(() => {
+    const currentAPI = `https://osse-back-end.vercel.app/registration`;
+    if (
+      registrationForm.email === registrationForm.email_match &&
+      registrationForm.password === registrationForm.password_match
+    ) {
+      alert(`You're Email and Password Matches!`);
+      const abortController = new AbortController();
+      async function postRegistration() {
+        try {
+          const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: uuid(),
+              first_name: '',
+              last_name: '',
+              username: '',
+              email: '',
+              password: '',
+              password_match: '',
+            }),
+          };
+          //eslint-disable-next-line
+          const response = await fetch(currentAPI, requestOptions, {
+            signal: abortController.signal,
+          });
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            console.log('Post was no successful');
+          } else {
+            throw error;
+          }
+        }
+      }
+      postRegistration();
+      return () => {
+        abortController.abort();
+      };
+    } else {
+      alert(`Email and Password Do Not Match!`);
+    }
+  }, []);
   const submitHandler = (event) => {
     event.preventDefault();
     const {
@@ -33,49 +75,6 @@ export default function RegistrationForm() {
       password,
       password_match,
     } = registrationForm;
-    if (
-      registrationForm.email === registrationForm.email_match &&
-      registrationForm.password === registrationForm.password_match
-    ) {
-      alert(`You're Email and Password Matches!`);
-      useEffect(() => {
-        const currentAPI = `https://osse-back-end.vercel.app/registration`;
-        const abortController = new AbortController();
-        async function postRegistration() {
-          try {
-            const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id,
-                first_name: '',
-                last_name: '',
-                username: '',
-                email: '',
-                password: '',
-                password_match: '',
-              }),
-            };
-            //eslint-disable-next-line
-            const response = await fetch(currentAPI, requestOptions, {
-              signal: abortController.signal,
-            });
-          } catch (error) {
-            if (error.name === 'AbortError') {
-              console.log('Post was no successful');
-            } else {
-              throw error;
-            }
-          }
-        }
-        postRegistration();
-        return () => {
-          abortController.abort();
-        };
-      }, []);
-    } else {
-      alert(`Email and Password Do Not Match!`);
-    }
     console.log(
       id,
       first_name,
