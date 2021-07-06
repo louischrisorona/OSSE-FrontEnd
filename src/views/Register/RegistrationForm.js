@@ -63,7 +63,10 @@ const RegistrationForm = () => {
     ) {
       alert(`You're Email and Password Matches!`);
       // everything validated, so now we want to post
-      create(registrationForm);
+      let body = registrationForm;
+      body = JSON.stringify(body);
+      console.log('bob got body', body);
+      create(body);
       history.push('/Login');
     } else {
       alert(`Email and Password Do Not Match!`);
