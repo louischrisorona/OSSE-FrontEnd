@@ -1,87 +1,115 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import uuid from 'react-uuid';
 
-export default function RegistrationForm() {
-  const initialForm = {
-    first_name: '',
-    last_name: '',
-    username: '',
-    email: '',
-    email_match: '',
-    password: '',
-    password_match: '',
-  };
-  const history = useHistory();
+const initialForm = {
+  first_name: '',
+  last_name: '',
+  username: '',
+  email: '',
+  email_match: '',
+  password: '',
+  password_match: '',
+};
 
+const RegistrationForm = () => {
   const [registrationForm, setRegistrationForm] = useState({ ...initialForm });
 
-  const handleChange = ({ target }) => {
+  const history = useHistory();
+
+  // It's only responsibility is handling form input changes
+  const handleChange = ({ target }, event) => {
+    event.preventDefault();
     setRegistrationForm({ ...registrationForm, [target.name]: target.value });
   };
-  useEffect(() => {
-    const currentAPI = `https://osse-back-end.vercel.app/registration`;
-    if (
-      registrationForm.email === registrationForm.email_match &&
-      registrationForm.password === registrationForm.password_match
-    ) {
-      alert(`You're Email and Password Matches!`);
-      const abortController = new AbortController();
-      async function postRegistration() {
-        try {
-          const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              first_name: '',
-              last_name: '',
-              username: '',
-              email: '',
-              password: '',
-              password_match: '',
-            }),
-          };
-          //eslint-disable-next-line
-          const response = await fetch(currentAPI, requestOptions, {
-            signal: abortController.signal,
-          });
-        } catch (error) {
-          if (error.name === 'AbortError') {
-            console.log('Post was not successful');
-          } else {
-            throw error;
-          }
-        }
-      }
-      postRegistration();
-      return () => {
-        abortController.abort();
-      };
-    } else {
-      alert(`Email and Password Do Not Match!`);
-    }
-  }, []);
+
+  // It's only responsibility is handling the submit
   const submitHandler = (event) => {
     event.preventDefault();
-    const {
-      first_name,
-      last_name,
-      username,
-      email,
-      email_match,
-      password,
-      password_match,
-    } = registrationForm;
+    const { first_name, last_name, username, email, password, password_match } =
+      registrationForm;
+
     console.log(
       first_name,
       last_name,
       username,
       email,
-      email_match,
       password,
       password_match
     );
-    setRegistrationForm({ ...initialForm });
-    history.push('/Login');
+
+    // this is now in a helper function -- easier to debug if something breaks,
+    // it also then breaks apart the responsibilities
+    validateForm();
+  };
+
+  // It's only responsibility is handling the POST
+  const postRegistration = async () => {
+    const abortController = new AbortController();
+    try {
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          registration_id: uuid(),
+          username: '',
+          first_name: '',
+          last_name: '',
+          email: '',
+          password: '',
+          password_match: '',
+        }),
+      };
+      //eslint-disable-next-line
+      const response = await fetch(currentAPI, requestOptions, {
+        signal: abortController.signal,
+      });
+
+      // not sure what your response looks like, but I would check for a 200
+      // usually I return a success boolean so it would be -- if (response.success)
+      if (response) {
+        // not sure if you need anything from it, but you would do it here
+
+        //finally, reset the registration form and navigate
+        setRegistrationForm({ ...initialForm });
+        history.push('/Login');
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        abortController.abort();
+        console.log('Post was not successful');
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  // It's responsibility is validating if the form is complete and ready to submit
+  const validateForm = () => {
+    /**
+     * bouncer pattern -- early return if either of these are true
+     * you can check any other field for empty values too
+     * bouncer is one of my favorites, its an early check for edge cases such as nulls
+     * or form data -- it stops it from executing anything else
+     */
+    if (registrationForm.email === '' || registrationForm.password.length < 8) {
+      alert(
+        `Email must be filled in and password must be 8 characters or more.`
+      );
+      return false;
+    }
+
+    // this will work now because the bouncer pattern catches the initial error
+    if (
+      registrationForm.email === registrationForm.email_match &&
+      registrationForm.password === registrationForm.password_match
+    ) {
+      alert(`You're Email and Password Matches!`);
+      // everything validated, so now we want to post
+      postRegistration();
+    } else {
+      alert(`Email and Password Do Not Match!`);
+    }
   };
 
   return (
@@ -189,4 +217,6 @@ export default function RegistrationForm() {
       </div>
     </div>
   );
-}
+};
+
+export default RegistrationForm;
