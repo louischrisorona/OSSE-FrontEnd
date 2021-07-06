@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import uuid from 'react-uuid';
+import { create } from './Axios/registrationAxios';
 
 const initialForm = {
+  registration_id: uuid(),
   first_name: '',
   last_name: '',
   username: '',
   email: '',
-  email_match: '',
   password: '',
   password_match: '',
 };
@@ -18,8 +19,7 @@ const RegistrationForm = () => {
   const history = useHistory();
 
   // It's only responsibility is handling form input changes
-  const handleChange = ({ target }, event) => {
-    event.preventDefault();
+  const handleChange = ({ target }) => {
     setRegistrationForm({ ...registrationForm, [target.name]: target.value });
   };
 
@@ -28,7 +28,6 @@ const RegistrationForm = () => {
     event.preventDefault();
     const { first_name, last_name, username, email, password, password_match } =
       registrationForm;
-
     console.log(
       first_name,
       last_name,
@@ -37,51 +36,9 @@ const RegistrationForm = () => {
       password,
       password_match
     );
-
     // this is now in a helper function -- easier to debug if something breaks,
     // it also then breaks apart the responsibilities
     validateForm();
-  };
-
-  // It's only responsibility is handling the POST
-  const postRegistration = async () => {
-    const abortController = new AbortController();
-    try {
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          registration_id: uuid(),
-          username: '',
-          first_name: '',
-          last_name: '',
-          email: '',
-          password: '',
-          password_match: '',
-        }),
-      };
-      //eslint-disable-next-line
-      const response = await fetch(currentAPI, requestOptions, {
-        signal: abortController.signal,
-      });
-
-      // not sure what your response looks like, but I would check for a 200
-      // usually I return a success boolean so it would be -- if (response.success)
-      if (response) {
-        // not sure if you need anything from it, but you would do it here
-
-        //finally, reset the registration form and navigate
-        setRegistrationForm({ ...initialForm });
-        history.push('/Login');
-      }
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        abortController.abort();
-        console.log('Post was not successful');
-      } else {
-        throw error;
-      }
-    }
   };
 
   // It's responsibility is validating if the form is complete and ready to submit
@@ -101,12 +58,13 @@ const RegistrationForm = () => {
 
     // this will work now because the bouncer pattern catches the initial error
     if (
-      registrationForm.email === registrationForm.email_match &&
+      registrationForm.email !== '' &&
       registrationForm.password === registrationForm.password_match
     ) {
       alert(`You're Email and Password Matches!`);
       // everything validated, so now we want to post
-      postRegistration();
+      create(registrationForm);
+      history.push('/Login');
     } else {
       alert(`Email and Password Do Not Match!`);
     }
@@ -173,18 +131,6 @@ const RegistrationForm = () => {
             onChange={handleChange}
             value={registrationForm.email}
             style={{ width: '100%', marginBottom: '5px' }}
-          />
-          <label htmlFor='email_match' className='d-block'>
-            Confirm Email:
-          </label>
-          <input
-            name='email_match'
-            type='email'
-            id='email_match'
-            required
-            onChange={handleChange}
-            value={registrationForm.email_match}
-            style={{ width: '100%' }}
           />
           <label htmlFor='password' className='d-block'>
             Password:{' '}
